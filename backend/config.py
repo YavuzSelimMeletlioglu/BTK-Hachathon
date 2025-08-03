@@ -1,7 +1,7 @@
 # config.py
 
 # BURAYA KENDİ GOOGLE API ANAHTARINIZI GİRİN
-API_KEY = "AIzaSyCUvO6h9XHCB6hxHWpaQv4VWVYOQB-mxxk" 
+API_KEY = "" 
 MODEL_NAME = "gemini-2.5-flash"
 
 # Yeni kategoriler eklemek için bu sözlüğe ekleme yapmanız yeterlidir.
