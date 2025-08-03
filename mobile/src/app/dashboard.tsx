@@ -15,62 +15,9 @@ import { useRef, useState } from "react";
 import { ApiResponse, RecipeResponse, RecipeType } from "../types";
 import { Recipe } from "../components/Recipe";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { post } from "../api";
+import { fetchYoutubeVideoId, post } from "../api";
 import YoutubePlayer from "react-native-youtube-iframe";
-/*
-const recipe: RecipeType[] = [
-  {
-    id: 1,
-    ingredients: [
-      {
-        id: 1,
-        name: "Makarna",
-        quantity: 200,
-        quantity_type: 1,
-        brand: "Torku",
-        cost: 50,
-      },
-    ],
-    totalCost: 10,
-  },
-  {
-    id: 2,
-    ingredients: [
-      {
-        id: 1,
-        name: "Pilav",
-        quantity: 200,
-        quantity_type: 1,
-        brand: "Torku",
-        cost: 60,
-      },
-    ],
-    totalCost: 12,
-  },
-  {
-    id: 3,
-    ingredients: [
-      {
-        id: 1,
-        name: "Makarna",
-        quantity: 200,
-        quantity_type: 1,
-        brand: "Torku",
-        cost: 50,
-      },
-      {
-        id: 2,
-        name: "Tavuk",
-        quantity: 200,
-        quantity_type: 1,
-        brand: "Şen Piliç",
-        cost: 200,
-      },
-    ],
-    totalCost: 50,
-  },
-];
-*/
+
 export default function Dashboard() {
   const [text, setText] = useState<string>("");
   const [expandedRecipe, setExpandedRecipe] = useState(1);
@@ -98,6 +45,10 @@ export default function Dashboard() {
       console.log("API response is undefined (hata alındı mı?)");
       setIsRefreshing(false);
       return;
+    }
+    if (category) {
+      const videoId = await fetchYoutubeVideoId(text);
+      setVideoUrl(videoId ?? "");
     }
 
     let modifiedResponse: ApiResponse<RecipeResponse>;
@@ -129,7 +80,6 @@ export default function Dashboard() {
         .filter((recipe: any) => recipe.ingredients.length > 0);
 
       setRecipes(cleanedRecipes);
-      setVideoUrl("3wo7qr6PIU4");
     }
 
     setIsRefreshing(false);

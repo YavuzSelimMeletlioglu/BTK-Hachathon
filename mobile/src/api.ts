@@ -49,6 +49,27 @@ export const deleteRequest = async (url: string, data?: any) => {
     }
 };
 
+export const fetchYoutubeVideoId = async (recipeName: string): Promise<string | null> => {
+    const API_KEY = '';
+    const query = encodeURIComponent(recipeName + ' tarifi');
+    const maxResults = 1;
+
+    const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&maxResults=${maxResults}&q=${query}&key=${API_KEY}`;
+
+    try {
+        const response = await axios.get(url);
+        const items = response.data.items;
+        if (items.length > 0) {
+            return items[0].id.videoId;
+        } else {
+            return null;
+        }
+    } catch (error) {
+        console.error('YouTube API Hatası:', error);
+        return null;
+    }
+};
+
 const alertError = (err: AxiosError) => {
     if (err.response) {
         if (err.response.status === 429) {
