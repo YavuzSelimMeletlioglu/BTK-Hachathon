@@ -1,4 +1,4 @@
-import { View, ViewProps } from "react-native";
+import { StyleSheet, View, ViewProps } from "react-native";
 import { useTheme } from "react-native-paper";
 
 export function ThemedView(props: ViewProps) {
@@ -7,7 +7,15 @@ export function ThemedView(props: ViewProps) {
   return (
     <View
       {...otherProps}
-      style={[style, { backgroundColor: theme.colors.surface }]}
+      style={[style, styles.style, { backgroundColor: theme.colors.surface }]}
     />
   );
 }
+
+const styles = StyleSheet.create({
+  style: {
+    flex: 1,
+    padding: 10,
+    justifyContent: "center",
+  },
+});

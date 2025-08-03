@@ -1,7 +1,6 @@
 import { ProductType } from "../types";
-import { ThemedView } from "./ThemedView";
 import { Button, List, Text } from "react-native-paper";
-import { FlatList, StyleSheet } from "react-native";
+import { FlatList, View } from "react-native";
 
 type Props = {
   list: ProductType[];
@@ -11,18 +10,16 @@ export function Recipe({ list }: Props) {
   const renderItem = ({ item }: { item: ProductType }) => {
     return (
       <List.Item
-        title={item.brand + " " + item.name}
-        style={styles.itemContainer}
-        description={
-          item.quantity + " " + (item.quantity_type === 0 ? "ad" : "gr")
-        }
+        title={item.brand}
+        titleStyle={{ fontWeight: "600" }}
+        description={item.name + " " + item.quantity}
         right={() => <Text>{item.cost}₺</Text>}
       />
     );
   };
 
   return (
-    <ThemedView>
+    <View>
       <FlatList
         data={list}
         renderItem={renderItem}
@@ -31,17 +28,6 @@ export function Recipe({ list }: Props) {
           <Button icon="cart-arrow-down">Sepete Ekle</Button>
         )}
       />
-    </ThemedView>
+    </View>
   );
 }
-
-const styles = StyleSheet.create({
-  itemContainer: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    borderWidth: 1,
-    padding: 5,
-    borderRadius: 5,
-    borderColor: "#fff",
-  },
-});

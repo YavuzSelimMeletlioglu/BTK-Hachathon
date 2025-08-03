@@ -5,27 +5,34 @@ import { ThemedView } from "../components/ThemedView";
 import { useState } from "react";
 import { post } from "../api";
 
-export default function Index() {
+export default function Register() {
+  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [passwordVisible, setPasswordVisibility] = useState(false);
   const router = useRouter();
 
-  const onLoginPress = async () => {
-    const response = await post("login", { email: email, password: password });
-    if (response && response.success) {
-      router.navigate({
-        pathname: "/dashboard",
-        params: {
-          name: response.data.name,
-        },
-      });
+  const onSavePress = async () => {
+    if (name === "" || email === "" || password === "") {
+      Alert.alert("Uyarı", "Tüm alanları doldurunuz.");
       return;
     }
-  };
+    const response = await post("register", {
+      name: name,
+      email: email,
+      password: password,
+    });
 
-  const onRegisterPress = () => {
-    router.push("/register");
+    if (!response || !response.success) {
+      Alert.alert("Hata", "Kayıt yapılamadı");
+      return;
+    }
+    router.navigate({
+      pathname: "/dashboard",
+      params: {
+        name: response.data.name,
+      },
+    });
   };
 
   const togglePasswordVisibility = () => {
@@ -35,7 +42,16 @@ export default function Index() {
   return (
     <ThemedView style={styles.container}>
       <TextInput
-        label="Email"
+        label="İsim*"
+        inputMode="text"
+        value={name}
+        onChangeText={(text) => {
+          setName(text);
+        }}
+        right={<TextInput.Icon icon="account" />}
+      />
+      <TextInput
+        label="Email*"
         inputMode="email"
         value={email}
         onChangeText={(text) => {
@@ -44,7 +60,7 @@ export default function Index() {
         right={<TextInput.Icon icon="email" />}
       />
       <TextInput
-        label="Şifre"
+        label="Şifre*"
         secureTextEntry={!passwordVisible}
         value={password}
         onChangeText={(text) => {
@@ -58,11 +74,8 @@ export default function Index() {
         }
       />
       <View style={styles.row}>
-        <Button mode="elevated" onPress={onLoginPress}>
-          Giriş Yap
-        </Button>
-        <Button mode="elevated" onPress={onRegisterPress}>
-          Kayıt Ol
+        <Button mode="elevated" onPress={onSavePress}>
+          Kaydet
         </Button>
       </View>
     </ThemedView>
