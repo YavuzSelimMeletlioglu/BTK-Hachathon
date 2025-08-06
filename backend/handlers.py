@@ -76,31 +76,7 @@ class RequestHandler:
                 "message": f"Beklenmedik bir hata oluştu: {str(e)}",
                 "data": None
             } 
-        # YENİ METOT: Mobil uygulama için eklendi
-        def get_raw_list_by_category(self, category: str, text: str) -> str:
-            """
-            Mobil uygulama gibi doğrudan argüman alan senaryolar için,
-            sadece ham metin listesini ("tarifi") döndürür.
-
-            Args:
-                category (str): İstek kategorisi (örn: "kırtasiye", "tarif").
-                text (str): İsteğin detayı (örn: "10. sınıf", "menemen").
-
-            Returns:
-                str: Model tarafından üretilen formatlanmış ham metin listesi veya hata mesajı.
-            """
-            try:
-                if not category or not text:
-                    return "Hata: 'category' ve 'text' alanları boş olamaz."
-
-                # Servis aracılığıyla LLM'den ham metin yanıtını al
-                raw_response = self.service.generate_list(category, text)
-                return raw_response
-
-            except Exception as e:
-                # Hata durumunda, hatayı string olarak döndür
-                return f"Liste oluşturulurken bir hata oluştu: {str(e)}"
-            
+        
 def convert_ingredients(df):
         return [
             {

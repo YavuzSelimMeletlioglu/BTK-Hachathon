@@ -31,7 +31,7 @@ def login():
     
     else:
         print(f'Hoşgeldin {user.first_name}')
-        return jsonify({'success': True, 'message': f'Hoşgeldin {user.first_name}', 'data': {'name': user.first_name}}), 200
+        return jsonify({'success': True, 'message': f'Hoşgeldin {user.first_name}', 'data': {'name': user.first_name, "id": user.id}}), 200
     
 @login_bp.route('/api/register', methods=['POST'])
 def register():
@@ -49,4 +49,4 @@ def register():
     db.session.add(new_user)
     db.session.commit()
     print(f'Kayıt başarılı. Hoşgeldin {name}')
-    return jsonify({'success': True, 'message': f'Kayıt başarılı. Hoşgeldin {name}', 'data': {'name': name}}), 201
+    return jsonify({'success': True, 'message': f'Kayıt başarılı. Hoşgeldin {name}', 'data': {'name': name, 'id':new_user.id}}), 201

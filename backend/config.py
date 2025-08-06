@@ -2,6 +2,7 @@
 
 # BURAYA KENDİ GOOGLE API ANAHTARINIZI GİRİN
 API_KEY = "" 
+
 MODEL_NAME = "gemini-2.5-flash"
 
 # Yeni kategoriler eklemek için bu sözlüğe ekleme yapmanız yeterlidir.

@@ -2,6 +2,7 @@ from flask import Flask, jsonify, request, send_from_directory
 import requests
 from recipe import recipe_bp
 from login import login_bp
+from cart import cart_bp
 from database import get_db, User  # User modelini sadece database.py'den al
 import os
 
@@ -18,6 +19,7 @@ def create_app():
 
     app.register_blueprint(recipe_bp)
     app.register_blueprint(login_bp)
+    app.register_blueprint(cart_bp)
     return app
 
 if __name__ == '__main__':

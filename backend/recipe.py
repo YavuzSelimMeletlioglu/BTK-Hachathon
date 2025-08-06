@@ -26,7 +26,6 @@ def get_recipe():
     import json
     json_input_str = json.dumps(json_input)
 
-    # json.loads() KALDIR - response zaten dict
     response = handler.process_request_to_json(json_input_str)
 
     return jsonify({'success': True, 'data': response}), 200
