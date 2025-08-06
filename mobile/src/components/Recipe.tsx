@@ -1,12 +1,16 @@
 import { ProductType } from "../types";
 import { Button, List, Text } from "react-native-paper";
 import { FlatList, View } from "react-native";
+import { post } from "../api";
+import { useRouter } from "expo-router";
 
 type Props = {
   list: ProductType[];
+  user_id: string;
 };
 
-export function Recipe({ list }: Props) {
+export function Recipe({ list, user_id }: Props) {
+  const router = useRouter();
   const renderItem = ({ item }: { item: ProductType }) => {
     return (
       <List.Item
@@ -18,6 +22,22 @@ export function Recipe({ list }: Props) {
     );
   };
 
+  const addToCart = async () => {
+    const data = {
+      user_id: user_id,
+      items: list,
+    };
+    const response = await post("cart/add-items", data);
+    if (response) {
+      router.push({
+        pathname: "/cart",
+        params: {
+          user_id: user_id,
+        },
+      });
+    }
+  };
+
   return (
     <View>
       <FlatList
@@ -25,7 +45,9 @@ export function Recipe({ list }: Props) {
         renderItem={renderItem}
         contentContainerStyle={{ padding: 10, rowGap: 10 }}
         ListFooterComponent={() => (
-          <Button icon="cart-arrow-down">Sepete Ekle</Button>
+          <Button icon="cart-arrow-down" onPress={addToCart}>
+            Sepete Ekle
+          </Button>
         )}
       />
     </View>

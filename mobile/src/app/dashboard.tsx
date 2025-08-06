@@ -2,6 +2,7 @@ import { ScrollView, StyleSheet, View } from "react-native";
 import {
   ActivityIndicator,
   Appbar,
+  Card,
   Checkbox,
   Icon,
   IconButton,
@@ -12,7 +13,7 @@ import {
 } from "react-native-paper";
 import { ThemedView } from "../components/ThemedView";
 import { useRef, useState } from "react";
-import { ApiResponse, RecipeResponse, RecipeType } from "../types";
+import { ApiResponse, ProductType, RecipeResponse, RecipeType } from "../types";
 import { Recipe } from "../components/Recipe";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { fetchYoutubeVideoId, post } from "../api";
@@ -25,7 +26,10 @@ export default function Dashboard() {
   const [category, setCategory] = useState(true); // true -> Yemek, false -> kırtasiye
   const [videoUrl, setVideoUrl] = useState("");
   const [refreshing, setIsRefreshing] = useState(false);
-  const { name } = useLocalSearchParams<{ name: string }>();
+  const { name, user_id } = useLocalSearchParams<{
+    name: string;
+    user_id: string;
+  }>();
   const videoRef = useRef(null);
 
   const onTextChange = (text: string) => {
@@ -36,16 +40,17 @@ export default function Dashboard() {
 
   const onChatPress = async () => {
     setIsRefreshing(true);
-    const response = await post<RecipeResponse>("recipe", {
+
+    const response = await post("recipe", {
       text: text,
       category: category ? "tarif" : "kırtasiye",
     });
 
     if (!response) {
-      console.log("API response is undefined (hata alındı mı?)");
       setIsRefreshing(false);
       return;
     }
+
     if (category) {
       const videoId = await fetchYoutubeVideoId(text);
       setVideoUrl(videoId ?? "");
@@ -58,32 +63,23 @@ export default function Dashboard() {
       modifiedResponse = response;
     }
 
-    if (modifiedResponse && modifiedResponse.success) {
-      const cleanedRecipes = modifiedResponse.data.recipes
-        .map((recipe: any) => ({
-          ...recipe,
-          // Filter out invalid ingredients (those with NaN values or URLs as names)
-          ingredients: recipe.ingredients.filter(
-            (ingredient: any) =>
-              ingredient.name &&
-              !ingredient.name.includes("http") &&
-              !isNaN(ingredient.cost) &&
-              ingredient.brand &&
-              ingredient.quantity
-          ),
-          // Calculate total cost from ingredients
-          totalCost: recipe.ingredients
-            .filter((ingredient: any) => !isNaN(ingredient.cost))
-            .reduce((sum: number, ingredient: any) => sum + ingredient.cost, 0),
-        }))
-        // Filter out recipes with no valid ingredients
-        .filter((recipe: any) => recipe.ingredients.length > 0);
+    // ✅ totalCost hesaplama
+    const updatedRecipes = modifiedResponse.data.recipes.map((recipe) => {
+      const totalCost = recipe.ingredients.reduce((sum, item) => {
+        return sum + parseFloat(item.cost);
+      }, 0);
+      return {
+        ...recipe,
+        totalCost,
+      };
+    });
 
-      setRecipes(cleanedRecipes);
-    }
+    // ✅ güncellenmiş veriyi state'e at
+    setRecipes(updatedRecipes);
 
     setIsRefreshing(false);
   };
+
   return (
     <>
       <Appbar.Header>
@@ -92,11 +88,18 @@ export default function Dashboard() {
           color={theme.colors.primary}
           icon="cart-outline"
           onPress={() => {
-            router.push("/cart");
+            router.push({
+              pathname: "/cart",
+              params: {
+                user_id: user_id,
+              },
+            });
           }}
         />
       </Appbar.Header>
-      <ScrollView style={{ backgroundColor: theme.colors.surface }}>
+      <ScrollView
+        style={{ backgroundColor: theme.colors.surface }}
+        contentContainerStyle={{ flexGrow: 1 }}>
         {refreshing ? (
           <ActivityIndicator />
         ) : (
@@ -159,7 +162,7 @@ export default function Dashboard() {
                           )}
                           id={item.id}
                           style={styles.accordion}>
-                          <Recipe list={item.ingredients} />
+                          <Recipe list={item.ingredients} user_id={user_id} />
                         </List.Accordion>
                       );
                     })}
@@ -167,43 +170,38 @@ export default function Dashboard() {
                 </View>
               </>
             ) : (
-              <>
+              <View style={styles.emptyStateContainer}>
                 <View style={styles.greetingView}>
-                  <Text variant="displayMedium">Merhaba {name}!!</Text>
+                  <Text variant="displayMedium">Merhaba</Text>
+                  <Text variant="displayMedium">{name}</Text>
                 </View>
-                <View style={styles.inputContainer}>
-                  <Checkbox.Item
-                    label="Yemek"
-                    status={category ? "checked" : "unchecked"}
-                    onPress={() => {
-                      setCategory(true);
-                    }}
-                  />
-                  <Checkbox.Item
-                    label="Kırtasiye"
-                    status={!category ? "checked" : "unchecked"}
-                    onPress={() => {
-                      setCategory(false);
-                    }}
-                  />
+                <View style={styles.bottomContent}>
+                  <View>
+                    <Card>
+                      <Card.Content>
+                        <Text variant="titleLarge">Günün Önerisi</Text>
+                        <Text variant="bodyLarge">Karnıyarık😀 ?</Text>
+                      </Card.Content>
+                    </Card>
+                  </View>
+                  <View style={styles.inputContainer}>
+                    <TextInput
+                      style={styles.textInput}
+                      label="Tarif sorunuz..."
+                      mode="outlined"
+                      value={text}
+                      onChangeText={onTextChange}
+                      autoFocus={true}
+                    />
+                    <IconButton
+                      icon="arrow-right"
+                      size={20}
+                      style={styles.inputButton}
+                      onPress={onChatPress}
+                    />
+                  </View>
                 </View>
-                <View style={styles.inputContainer}>
-                  <TextInput
-                    style={styles.textInput}
-                    label="Tarif sorunuz..."
-                    mode="outlined"
-                    value={text}
-                    onChangeText={onTextChange}
-                    autoFocus={true}
-                  />
-                  <IconButton
-                    icon="arrow-right"
-                    size={20}
-                    style={styles.inputButton}
-                    onPress={onChatPress}
-                  />
-                </View>
-              </>
+              </View>
             )}
           </ThemedView>
         )}
@@ -211,10 +209,10 @@ export default function Dashboard() {
     </>
   );
 }
-
 const styles = StyleSheet.create({
   container: {
     rowGap: 20,
+    flex: 1,
   },
   accordionConainer: {
     flex: 1,
@@ -222,9 +220,18 @@ const styles = StyleSheet.create({
     justifyContent: "flex-start",
     rowGap: 20,
   },
+  emptyStateContainer: {
+    flex: 1,
+    justifyContent: "space-between",
+  },
   greetingView: {
     alignItems: "center",
     justifyContent: "center",
+    flex: 1,
+  },
+  bottomContent: {
+    rowGap: 20,
+    paddingBottom: 20,
   },
   inputContainer: {
     flexDirection: "row",

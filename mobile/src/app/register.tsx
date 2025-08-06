@@ -31,6 +31,7 @@ export default function Register() {
       pathname: "/dashboard",
       params: {
         name: response.data.name,
+        user_id: response.data.id,
       },
     });
   };
@@ -55,7 +56,7 @@ export default function Register() {
         inputMode="email"
         value={email}
         onChangeText={(text) => {
-          setEmail(text);
+          setEmail(text.toLowerCase());
         }}
         right={<TextInput.Icon icon="email" />}
       />

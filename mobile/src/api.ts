@@ -50,7 +50,7 @@ export const deleteRequest = async (url: string, data?: any) => {
 };
 
 export const fetchYoutubeVideoId = async (recipeName: string): Promise<string | null> => {
-    const API_KEY = '';
+    const API_KEY = 'AIzaSyApAkN1FMpeRS4idFhSlbiEaKjvyL6m8Ts';
     const query = encodeURIComponent(recipeName + ' tarifi');
     const maxResults = 1;
 
